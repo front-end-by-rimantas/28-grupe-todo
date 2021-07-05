@@ -8,7 +8,9 @@ class Todo {
         this.newBorderColorDOM = null;
         this.buttonSaveDOM = null;
 
-        this.messages = JSON.parse(localStorage.getItem('messages')) || [];
+        this.latestUsedID = 0;
+        this.localStorageTodosKey = 'todosList';
+        this.messages = JSON.parse(localStorage.getItem(this.localStorageTodosKey)) || [];
 
         this.init();
     }
@@ -85,6 +87,18 @@ class Todo {
                         </div>`;
 
         this.listDOM.insertAdjacentHTML('afterbegin', HTML);
+
+        const taskDOM = this.listDOM.querySelector('.task');
+        const editDOM = taskDOM.querySelector('.edit');
+        const deleteDOM = taskDOM.querySelector('.delete');
+
+        deleteDOM.addEventListener('click', () => {
+            if (!confirm('Ar tikrai norite istrinti si irasa?')) {
+                return false;
+            }
+
+            taskDOM.remove();
+        })
     }
 
     render() {
@@ -101,8 +115,10 @@ class Todo {
     }
 
     addEvents() {
+        // pridedamas uzrasas
         this.buttonSaveDOM.addEventListener('click', (e) => {
             e.preventDefault();
+
             const message = this.newMessageDOM.value;
             const color = this.newBorderColorDOM.value;
 
@@ -113,12 +129,17 @@ class Todo {
             this.renderTask(message, color);
 
             this.messages.push({
+                id: ++this.latestUsedID,
                 messageText: message,
                 borderColor: color
             })
 
-            localStorage.setItem('messages', JSON.stringify(this.messages));
+            localStorage.setItem(this.localStorageTodosKey, JSON.stringify(this.messages));
         })
+
+        // uzraso istrinimas
+
+        // uzraso redagavimas
     }
 }
 
