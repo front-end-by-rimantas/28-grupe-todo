@@ -8,8 +8,9 @@ class Todo {
         this.newBorderColorDOM = null;
         this.buttonSaveDOM = null;
 
-        this.latestUsedID = 0;
+        this.localStorageIDcount = 'todosID';
         this.localStorageTodosKey = 'todosList';
+        this.latestUsedID = JSON.parse(localStorage.getItem(this.localStorageIDcount)) || 0;
         this.messages = JSON.parse(localStorage.getItem(this.localStorageTodosKey)) || [];
 
         this.init();
@@ -69,11 +70,11 @@ class Todo {
 
     renderList() {
         for (const task of this.messages) {
-            this.renderTask(task.messageText, task.borderColor);
+            this.renderTask(task.id, task.messageText, task.borderColor);
         }
     }
 
-    renderTask(text, borderColor = '#ccc') {
+    renderTask(id, text, borderColor = '#ccc') {
         if (typeof text !== 'string' ||
             text === '') {
             return '';
@@ -98,6 +99,9 @@ class Todo {
             }
 
             taskDOM.remove();
+
+            this.messages = this.messages.filter((task) => task.id !== id);
+            localStorage.setItem(this.localStorageTodosKey, JSON.stringify(this.messages));
         })
     }
 
@@ -126,14 +130,15 @@ class Todo {
                 return false;
             }
 
-            this.renderTask(message, color);
-
             this.messages.push({
                 id: ++this.latestUsedID,
                 messageText: message,
                 borderColor: color
             })
 
+            this.renderTask(this.latestUsedID, message, color);
+
+            localStorage.setItem(this.localStorageIDcount, JSON.stringify(this.latestUsedID));
             localStorage.setItem(this.localStorageTodosKey, JSON.stringify(this.messages));
         })
 
